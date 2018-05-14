@@ -3,7 +3,6 @@ package com.greyogproducts.greyog.jpuzz;
 import com.badlogic.gdx.backends.iosmoe.IOSApplication;
 import com.badlogic.gdx.backends.iosmoe.IOSApplicationConfiguration;
 import org.moe.natj.general.Pointer;
-import com.greyogproducts.greyog.jpuzz.MainClass;
 
 import apple.uikit.c.UIKit;
 
