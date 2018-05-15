@@ -10,10 +10,12 @@ class MainClass : Game() {
 
     private var data: FileHandle? = null
 
+    var boardMap : MutableMap<String, Board> = HashMap()
+
     override fun create() {
-        data = Gdx.files.internal("data/escape.dat")
+        data = Gdx.files.internal("data/fuji01.data")
         readBoardFile(data!!)
-        setScreen(MainScreen())
+        setScreen(MainScreen(boardMap))
     }
 
     fun myLog( msg : String) {
@@ -32,12 +34,13 @@ class MainClass : Game() {
         var steps = 0
         while ( index < lines.size) {
             val s = lines[index]
-            val lineItems = s.split(" ")
+            val lineItems = s.split(" ").filter { it != ""}
+
 //            myLog(lineItems.toString())
             if (lineItems.isNotEmpty()) {
                 if (lineItems[0] == "size") {
-                    sizeX = lineItems[2].toInt()
-                    sizeY = lineItems[4].toInt()
+                    sizeX = lineItems[1].toInt()
+                    sizeY = lineItems[2].toInt()
                     myLog("sizes = $sizeX / $sizeY")
                 }
                 if (lineItems[0] == "step") {
@@ -51,8 +54,12 @@ class MainClass : Game() {
                         index += 1
                         val line = lines[index]
                         initial.add(line)
+
 //                        myLog(line)
                     }
+                    val board = Board(sizeX, sizeY, initial)
+                    board.name = "initial"
+                    boardMap[board.name]= board
                     myLog(initial.toString())
                 }
             }

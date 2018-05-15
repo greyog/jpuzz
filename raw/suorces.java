@@ -32,6 +32,89 @@ import java.net.*;
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 public class Slide extends Applet {
+
+    public void snapThatCrap() {
+        int GapX = 8
+        int GapY = 8;
+        int SizeX = 32;
+        int SizeY = 32;
+
+        int FullSizeX = SizeX + GapX;
+        int FullSizeX = SizeX + GapX;
+
+        public void snapThatCrap(Vector3 inout)
+        {
+            // Convert the point to tile space
+            int TileX = (int) (inout.x / FullSizeX);
+            int TileY = (int) (inout.y / FullSizeY);
+
+            // Find how far into the tile the point is
+            float IntoTileX = inout.x - (TileX * FullSizeX);
+            float IntoTileY = inout.y - (TileY * FullSizeY);
+
+            // If we are less than half into the tile
+            if (IntoTileX < (SizeX / 2))
+            {
+                // Snap to the left side of the tile
+                inout.x = TileX * FullSizeX;
+            }
+            else
+                // If we are more than half into the tile, and less than half of the gap
+                if (IntoTileX < (SizeX + (GapX / 2)))
+                {
+                    // Snap to the right side of the tile
+                    inout.x = TileX * FullSizeX + SizeX;
+                }
+                else
+                {
+                    // Snap to the left side of the next tile
+                    inout.x = TileX * FullSizeX + FullSizeX;
+                }
+
+            // If we are less than half into the tile
+            if (IntoTileY < (SizeY / 2))
+            {
+                // Snap to the bottom side of the tile
+                inout.y = TileY * FullSizeY;
+            }
+            else
+                // If we are more than half into the tile, and less than half of the gap
+                if (IntoTileY < (SizeY + (GapY / 2)))
+                {
+                    // Snap to the top side of the tile
+                    inout.y = TileY * FullSizeY + SizeY;
+                }
+                else
+                {
+                    // Snap to the bottom side of the next tile
+                    inout.y = TileY * FullSizeY + FullSizeY;
+                }
+
+            // If we are off the grid to the left, fix it
+            if (inout.x < 0)
+            {
+                inout.x = 0;
+            }
+            else
+                // If we are off the grid to the right, fix it
+                if (inout.x > Cols * FullSizeX - GapX)
+                {
+                    inout.x = Cols * FullSizeX - GapX;
+                }
+            // If we are off the grid to the bottom, fix it
+            if (inout.y < 0)
+            {
+                inout.y = 0;
+            }
+            else
+                // If we are off the grid to the top, fix it
+                if (inout.y > Rows * FullSizeY - GapY)
+                {
+                    inout.y = Rows * FullSizeY - GapY;
+                }
+        }
+    }
+
     final	int	BUTTON_H 	=  35;
     final	int	MSG_H		=  35;
     final	int	COPY_H	=  30;

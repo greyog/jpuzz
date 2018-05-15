@@ -1,5 +1,7 @@
 package com.greyogproducts.greyog.jpuzz
 
+import com.badlogic.gdx.scenes.scene2d.Actor
+
 internal class Const(private val mSizeX: Int, private val mSizeY: Int, private val mWidth: Float, private val mHeight: Float, private val mPpcX: Float, private val mPpcY: Float) {
     val SHAKE_TIME: Long = 10000
     val SHAKE_CHANCE = 0.001f
@@ -34,6 +36,10 @@ internal class Const(private val mSizeX: Int, private val mSizeY: Int, private v
         ITEM_DIM_Y = ITEM_DIM_CM * ratio * ppcY
         ITEM_PAD_X = ITEM_PAD_CM * ratio * ppcX
         ITEM_PAD_Y = ITEM_PAD_CM * ratio * ppcY
+    }
+
+    fun setActorSize(actor: Actor) {
+        actor.setSize(ITEM_DIM_X, ITEM_DIM_Y)
     }
 
     companion object {

@@ -1,0 +1,26 @@
+;  スライドパズル by 藤原博文
+;	pattern no.1
+size 4 5
+next fuji02.data
+step 10
+initial
+bcde
+faag
+faag
+hhii
+.jj.
+;
+target
+.aa.
+.aa.
+....
+....
+....
+;
+hint
+.aa.
+.aa.
+....
+....
+....
+end
