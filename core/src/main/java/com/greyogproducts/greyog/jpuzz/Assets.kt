@@ -15,6 +15,9 @@ object Assets {
     lateinit var managerError: AssetErrorListener
     lateinit var atlas: TextureAtlas
     lateinit var skin: Skin
+    lateinit var rgnRamka: TextureAtlas.AtlasRegion
+    lateinit var rgnPole: TextureAtlas.AtlasRegion
+    lateinit var rgnTile: TextureAtlas.AtlasRegion
 
 
     val NUMBER_CHARACTERS = "1234567890"
@@ -59,6 +62,10 @@ object Assets {
         manager.load("ui/skin.atlas", TextureAtlas::class.java)
         manager.finishLoading()
         atlas = manager.get("ui/skin.atlas", TextureAtlas::class.java)
+        rgnRamka = atlas.findRegion("border")
+        rgnPole = atlas.findRegion("field")
+        rgnTile = Assets.atlas.findRegion("tile_basic")
+
     }
 
     fun loadTexture(src: Array<String>) {

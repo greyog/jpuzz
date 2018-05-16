@@ -4,14 +4,21 @@ import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.Group
+import com.badlogic.gdx.scenes.scene2d.InputEvent
+import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.badlogic.gdx.scenes.scene2d.ui.Widget
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup
+import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener
+import com.greyogproducts.greyog.jpuzz.Assets.rgnPole
+import com.greyogproducts.greyog.jpuzz.Assets.rgnRamka
+import com.greyogproducts.greyog.jpuzz.Assets.rgnTile
 
 
 class Board(val sizeX: Int, val sizeY: Int, val lines: ArrayList<String>) : WidgetGroup() {
-    val basicSize = 80f
+    val basicSize = 50f
     val otstup = 10f
     lateinit var ramka: Ramka
+    val pole : Array<Array<Block>> = arrayOfNulls<>(sizeY)
 
     fun create() {
         ramka = Ramka(this)
@@ -57,9 +64,7 @@ class Block(posX: Int, posY: Int) : Widget(){
     var hasRight = false
     var hasDown = false
     var hasLeft = false
-    private val lineTh = 3f
-    private val rgnTile = Assets.atlas.findRegion("tile_basic")
-    private val rgnRamka = Assets.atlas.findRegion("border")
+    private val zazor = 1f
     private lateinit var rgn : TextureRegion
     override fun setParent(parent: Group?) {
         super.setParent(parent)
@@ -76,10 +81,10 @@ class Block(posX: Int, posY: Int) : Widget(){
 
     override fun draw(batch: Batch?, parentAlpha: Float) {
         batch?.draw(rgn, x, y, width, height)
-        if (!hasUp) batch?.draw(rgnRamka,x,y+height, width, lineTh)
-        if (!hasDown) batch?.draw(rgnRamka,x,y, width, lineTh)
-        if (!hasRight) batch?.draw(rgnRamka,x+width,y, lineTh, height)
-        if (!hasLeft) batch?.draw(rgnRamka,x,y, lineTh, height)
+        if (!hasUp) batch?.draw(rgnPole,x,y+height, width, zazor)
+        if (!hasDown) batch?.draw(rgnPole,x,y, width, zazor)
+        if (!hasRight) batch?.draw(rgnPole,x+width,y, zazor, height)
+        if (!hasLeft) batch?.draw(rgnPole,x,y, zazor, height)
         super.draw(batch, parentAlpha)
     }
 
@@ -87,8 +92,8 @@ class Block(posX: Int, posY: Int) : Widget(){
         parent.children.forEach {
             val blk = it as Block
             if (blk != this) {
-                if (blk.by == by + 1) hasUp = true
-                if (blk.by == by - 1) hasDown = true
+                if (blk.by == by - 1) hasUp = true
+                if (blk.by == by + 1) hasDown = true
                 if (blk.bx == bx + 1) hasRight = true
                 if (blk.bx == bx - 1) hasLeft = true
             }
@@ -96,6 +101,75 @@ class Block(posX: Int, posY: Int) : Widget(){
     }
 }
 class Piece : WidgetGroup() {
+    init {
+        addListener(object : ActorGestureListener() {
+            var isMovingHor = false
+            var isMovingVer = false
+
+            override fun touchDown(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int) {
+                if (hasActions()) return
+                super.touchDown(event, x, y, pointer, button)
+            }
+
+            override fun pan(event: InputEvent?, x: Float, y: Float, deltaX: Float, deltaY: Float) {
+                if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                    if (!isMovingVer) {
+                        isMovingHor = true
+                        swipeOnRight(deltaX)
+                    }
+                } else {
+                    if (!isMovingHor) {
+                        isMovingVer = true
+                        swipeOnUp(deltaY)
+                    }
+                }
+                super.pan(event, x, y, deltaX, deltaY)
+            }
+
+            override fun touchUp(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int) {
+                isMovingHor = false
+                isMovingVer = false
+                super.touchUp(event, x, y, pointer, button)
+            }
+        })
+    }
+
+    private fun swipeOnUp(dy: Float) {
+        if (miny == 0 && dy > 0) return
+        if (maxy == getBoard().sizeY && dy < 0) return
+        addAction(Actions.moveBy(0f, dy))
+    }
+
+    private fun swipeOnDown(dy: Float) {
+        addAction(Actions.moveBy(0f, -1f))
+    }
+
+    private fun swipeOnLeft(dx: Float) {
+        addAction(Actions.moveBy(-1f, 0f))
+    }
+
+    private fun swipeOnRight(dx: Float) {
+        addAction(Actions.moveBy(dx, 0f))
+    }
+
+    private var minx: Int? = null
+
+    private var miny: Int? = null
+
+    private var maxy: Int = 0
+
+    private var maxx = 0
+
+    override fun addActor(actor: Actor?) {
+        super.addActor(actor)
+        val blk = actor as Block
+        minx = if (minx == null) blk.bx else if (blk.bx < minx!!) blk.bx else minx
+        miny = if (miny == null) blk.by else if (blk.by < miny!!) blk.by else miny
+        maxy = if (blk.by > maxy) blk.by else maxy
+        maxx = if (blk.bx > maxx) blk.bx else maxx
+
+    }
+
     fun getBoard(): Board {
         return parent as Board
     }
@@ -103,8 +177,6 @@ class Piece : WidgetGroup() {
 
 class Ramka(board: Board) : Widget() {
     private val tolshina = board.otstup
-    private val rgnRamka = Assets.atlas.findRegion("border")
-    private val rgnPole = Assets.atlas.findRegion("field")
     init {
         width = board.sizeX * board.basicSize + 2*tolshina
         height = board.sizeY * board.basicSize + 2*tolshina
