@@ -18,7 +18,7 @@ class Board(val sizeX: Int, val sizeY: Int, val lines: ArrayList<String>) : Widg
     val basicSize = 50f
     val otstup = 10f
     lateinit var ramka: Ramka
-    val pole : Array<Array<Block>> = arrayOfNulls<>(sizeY)
+    val array = Array(sizeX, { arrayOfNulls<Block?>(sizeY)})
 
     fun create() {
         ramka = Ramka(this)
@@ -28,6 +28,7 @@ class Board(val sizeX: Int, val sizeY: Int, val lines: ArrayList<String>) : Widg
             it.forEachIndexed { ax, c ->
                if (c != '.') {
                     val block = Block( ax, ay)
+                   array[ax][ay] = block
                     if (c == '#') block.isBorder = true
                     block.name = c.toString()
                     var piece : Piece? = null
