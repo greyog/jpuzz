@@ -24,7 +24,7 @@ class MainScreen(private var boardsMap: MutableMap<String, Board>) : Screen {
 
     override fun show() {
         stage = Stage(FitViewport(640f, 480f))
-        stage.setDebugAll(true)
+//        stage.setDebugAll(true)
         val w = Gdx.graphics.width.toFloat()
         val h = Gdx.graphics.height.toFloat()
         val ppcX = Gdx.graphics.ppcX
@@ -50,11 +50,12 @@ class MainScreen(private var boardsMap: MutableMap<String, Board>) : Screen {
 
         val boardTable = Table(skin)
         val initialBoard = this.boardsMap["initial"]
-        stage.addActor(boardTable)
-//        stage.addActor(initialBoard)
-        boardTable.setFillParent(true)
+//        stage.addActor(boardTable)
+        stage.addActor(initialBoard)
+//        boardTable.setFillParent(true)
+        initialBoard?.setFillParent(true)
         aConst = Const(initialBoard!!.sizeX, initialBoard.sizeY, w, h, ppcX, ppcY)
-        boardTable.defaults().width(aConst.ITEM_DIM_X).height(aConst.ITEM_DIM_Y)
+        initialBoard.create()
 //        boardTable.add(initialBoard)
 //        initialBoard.children?.forEach {
 //            boardTable.row()
@@ -65,32 +66,8 @@ class MainScreen(private var boardsMap: MutableMap<String, Board>) : Screen {
 //                boardTable.add(label)
 //            }
 //        }
-        initialBoard.lines.forEachIndexed { ay, it ->
-//            boardTable.row()
-            it.forEachIndexed { ax, c ->
-                val label = Label(c.toString(), skin)
-
-//                boardTable.add(label)
-                if (c != '.') {
-                    val block = Block(ax, ay)
-                    if (c == '#') block.isBorder = true
-                    block.name = c.toString()
-                    var piece : Piece? = null
-                    initialBoard.children.forEach {
-                        if (it.name == block.name){
-                            piece = it as Piece?
-                            return@forEach
-                        }
-                    }
-                    if (piece == null) {
-                        piece = Piece()
-                        piece?.name = block.name
-                        initialBoard.addActor(piece)
-                    }
-                    piece?.addActor(block)
-                }
-            }
-        }
+        ///////////////////////////
+//        initialBoard.
 
         Gdx.input.inputProcessor = stage
     }
