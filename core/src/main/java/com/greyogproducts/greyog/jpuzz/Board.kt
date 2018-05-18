@@ -1,7 +1,9 @@
 package com.greyogproducts.greyog.jpuzz
 
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.graphics.g2d.TextureRegion
+import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.Group
 import com.badlogic.gdx.scenes.scene2d.InputEvent
@@ -18,7 +20,8 @@ class Board(val sizeX: Int, val sizeY: Int, val lines: ArrayList<String>) : Widg
     val basicSize = 50f
     val otstup = 10f
     lateinit var ramka: Ramka
-    val array = Array(sizeX, { arrayOfNulls<Block?>(sizeY)})
+//    val array = Array(sizeX, { arrayOfNulls<Block?>(sizeY)})
+    val allBlocks = ArrayList<Block>()
 
     fun create() {
         ramka = Ramka(this)
@@ -28,7 +31,8 @@ class Board(val sizeX: Int, val sizeY: Int, val lines: ArrayList<String>) : Widg
             it.forEachIndexed { ax, c ->
                if (c != '.') {
                     val block = Block( ax, ay)
-                   array[ax][ay] = block
+                   allBlocks.add(block)
+//                   array[ax][ay] = block
                     if (c == '#') block.isBorder = true
                     block.name = c.toString()
                     var piece : Piece? = null
@@ -54,6 +58,7 @@ class Board(val sizeX: Int, val sizeY: Int, val lines: ArrayList<String>) : Widg
                     (piece.children[j] as Block).znaiSoseda()
                 }
         }
+//        Gdx.app.log("tag", array.toString())
     }
 }
 
@@ -102,6 +107,8 @@ class Block(posX: Int, posY: Int) : Widget(){
     }
 }
 class Piece : WidgetGroup() {
+    private var x0 : Float? = null
+    private var y0 : Float? = null
     init {
         addListener(object : ActorGestureListener() {
             var isMovingHor = false
@@ -109,6 +116,8 @@ class Piece : WidgetGroup() {
 
             override fun touchDown(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int) {
                 if (hasActions()) return
+                x0 = x
+                y0 = y
                 super.touchDown(event, x, y, pointer, button)
             }
 
@@ -116,12 +125,14 @@ class Piece : WidgetGroup() {
                 if (Math.abs(deltaX) > Math.abs(deltaY)) {
                     if (!isMovingVer) {
                         isMovingHor = true
-                        swipeOnRight(deltaX)
+                        if (deltaX > 0) swipeOnRight(deltaX)
+                        else swipeOnLeft(deltaX)
                     }
                 } else {
                     if (!isMovingHor) {
                         isMovingVer = true
-                        swipeOnUp(deltaY)
+                        if (deltaY > 0) swipeOnUp(deltaY, x, y)
+                        else swipeOnDown(deltaY, x, y)
                     }
                 }
                 super.pan(event, x, y, deltaX, deltaY)
@@ -130,19 +141,61 @@ class Piece : WidgetGroup() {
             override fun touchUp(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int) {
                 isMovingHor = false
                 isMovingVer = false
+                x0 = null
+                y0 = null
                 super.touchUp(event, x, y, pointer, button)
             }
         })
     }
 
-    private fun swipeOnUp(dy: Float) {
-        if (miny == 0 && dy > 0) return
-        if (maxy == getBoard().sizeY && dy < 0) return
-        addAction(Actions.moveBy(0f, dy))
+    private fun swipeOnUp(dy: Float, touchX: Float, touchY: Float) {
+//        Gdx.app.log("UP", "dy=$dy , tY = $touchY")
+        if (canMoveUp()) {
+            moveBy(0f, dy)
+//            val sdvig = touchY - y0!! - getBoard().basicSize/2
+//            if (sdvig > 0) {
+//                children.forEach {
+//                    (it as Block).by -=1
+//                }
+//                y0 = touchY
+//                Gdx.app.log("tag", "sdvig UP")
+//            }
+        }
     }
 
-    private fun swipeOnDown(dy: Float) {
-        addAction(Actions.moveBy(0f, -1f))
+    private fun canMoveUp(): Boolean {
+        val v1 = Vector2(minYblk.x, minYblk.y)
+        val v2 = minYblk.localToStageCoordinates(v1)
+        Gdx.app.log("q", "$v2")
+        val vRamka = getBoard().ramka.localToStageCoordinates(
+                Vector2(getBoard().ramka.x, getBoard().ramka.y))
+//        if (v2.y + minYblk.height >= vRamka.y + getBoard().ramka.height) return false
+//        getBoard().allBlocks.forEach {
+//            if (it.by == minYblk.by - 1) return false
+//        }
+        return true
+    }
+
+    private fun swipeOnDown(dy: Float, touchX: Float, touchY: Float) {
+        if (canMoveDown()) {
+            moveBy(0f, dy)
+//            val sdvig = touchY - y0!! + getBoard().basicSize/2
+//            if (sdvig < 0) {
+//                children.forEach {
+//                    (it as Block).by +=1
+//                }
+//                y0 = touchY
+//                Gdx.app.log("tag", "sdvig DOWN")
+//            }
+        }
+    }
+
+    private fun canMoveDown(): Boolean {
+//        if (maxYblk.by == getBoard().sizeY) return false
+//        getBoard().allBlocks.forEach {
+//            if (it.by == minYblk.by + 1) return false
+//        }
+        return true
     }
 
     private fun swipeOnLeft(dx: Float) {
@@ -154,20 +207,40 @@ class Piece : WidgetGroup() {
     }
 
     private var minx: Int? = null
-
     private var miny: Int? = null
-
     private var maxy: Int = 0
-
     private var maxx = 0
+    private lateinit var minXblk : Block
+    private lateinit var minYblk : Block
+    private lateinit var maxXblk : Block
+    private lateinit var maxYblk : Block
 
     override fun addActor(actor: Actor?) {
         super.addActor(actor)
         val blk = actor as Block
-        minx = if (minx == null) blk.bx else if (blk.bx < minx!!) blk.bx else minx
-        miny = if (miny == null) blk.by else if (blk.by < miny!!) blk.by else miny
-        maxy = if (blk.by > maxy) blk.by else maxy
-        maxx = if (blk.bx > maxx) blk.bx else maxx
+        minx = if (minx == null) {
+            minXblk = blk
+            blk.bx
+        } else if (blk.bx < minx!!) {
+            minXblk = blk
+            blk.bx
+        } else minx
+        miny = if (miny == null) {
+            minYblk = blk
+            blk.by
+        } else if (blk.by < miny!!) {
+            minYblk = blk
+            blk.by
+        } else miny
+        maxy = if (blk.by >= maxy) {
+            maxYblk = blk
+            blk.by
+        } else maxy
+        maxx = if (blk.bx >= maxx) {
+            maxXblk = blk
+            blk.bx
+        } else maxx
+//        setBounds(minXblk.x, minYblk.y, maxXblk.x + getBoard().basicSize, maxYblk.y + getBoard().basicSize)
 
     }
 

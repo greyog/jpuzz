@@ -13,7 +13,7 @@ class MainClass : Game() {
     var boardMap : MutableMap<String, Board> = HashMap()
 
     override fun create() {
-        data = Gdx.files.internal("data/fuji01.data")
+        data = Gdx.files.internal("data/test.data")
         readBoardFile(data!!)
         setScreen(MainScreen(boardMap))
     }
