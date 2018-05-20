@@ -12,6 +12,16 @@ import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener
 class Piece : WidgetGroup() {
     private var x0 : Float? = null
     private var y0 : Float? = null
+
+    private var minx: Int? = null
+    private var miny: Int? = null
+    private var maxy: Int = 0
+    private var maxx = 0
+    private lateinit var minXblk : Block
+    private lateinit var minYblk : Block
+    private lateinit var maxXblk : Block
+    private lateinit var maxYblk : Block
+
     init {
         addListener(object : ActorGestureListener() {
             var isMovingHor = false
@@ -71,30 +81,32 @@ class Piece : WidgetGroup() {
     private fun canMoveUp(dy: Float): Boolean {
 //        val v1 = Vector2(minYblk.x, minYblk.y)
 //        val v2 = minYblk.localToStageCoordinates(v1)
-        val vRamkaMin = board.ramka.localToStageCoordinates(
-                Vector2(board.ramka.x, board.ramka.y))
-        val vRamkaMax = board.ramka.localToStageCoordinates(
-                Vector2(board.ramka.width, board.ramka.height))
+//        val vRamkaMin = board.ramka.localToStageCoordinates(
+//                Vector2(board.ramka.x, board.ramka.y))
+//        val vRamkaMax = board.ramka.localToStageCoordinates(
+//                Vector2(board.ramka.width, board.ramka.height))
         var found = false
         children.forEach {
             val blk = it as Block
-            val v1l = blk.localToStageCoordinates(Vector2(blk.x, blk.y + dy))
-            val v1r = blk.localToStageCoordinates(Vector2(blk.x + blk.width, blk.y + dy + blk.height))
+            val v1l = this.localToStageCoordinates(Vector2(blk.x, blk.y + dy))
+            val v1r = this.localToStageCoordinates(Vector2(blk.x + blk.width, blk.y + dy + blk.height))
             val r1 = Rectangle(v1l.x, v1l.y, v1r.x, v1r.y)
-            if (v1l.y <= vRamkaMin.y || v1r.y >= vRamkaMax.y) found = true
-            if (found) {
-                Gdx.app.log("check", "ramka!")
-                return@forEach
-            }
+            if (v1l.y <= board.ramkaRectangle.y || v1r.y >= board.ramkaRectangle.height) found = true
             board.allBlocks.forEach {
                 if (it.piece != blk.piece) {
-                    val v2l = it.localToStageCoordinates(Vector2(it.x, it.y))
-                    val v2r = it.localToStageCoordinates(Vector2(it.x + it.width, it.y + it.height))
+                    val v2l = it.piece.localToStageCoordinates(Vector2(it.x, it.y))
+                    val v2r = it.piece.localToStageCoordinates(Vector2(it.x + it.width, it.y + it.height))
                     val r2 = Rectangle(v2l.x, v2l.y, v2r.x, v2r.y)
-                    if (r2.overlaps(r1)) found = true
-//                    if (found)
+                    if (!(v1r.y <= v2l.y || v1l.y >= v2r.y || v1r.x <= v2l.x || v1l.x >= v2r.x)) found = true
+                    if (found) {
                         Gdx.app.log("check", "r1=$r1 , r2 = $r2")
+                        return@forEach
+                    }
                 }
+            }
+            if (found) {
+//                Gdx.app.log("check", "ramka!")
+                return@forEach
             }
         }
         return !found
@@ -136,15 +148,6 @@ class Piece : WidgetGroup() {
         addAction(Actions.moveBy(dx, 0f))
     }
 
-    private var minx: Int? = null
-    private var miny: Int? = null
-    private var maxy: Int = 0
-    private var maxx = 0
-    private lateinit var minXblk : Block
-    private lateinit var minYblk : Block
-    private lateinit var maxXblk : Block
-    private lateinit var maxYblk : Block
-
     override fun addActor(actor: Actor?) {
         super.addActor(actor)
         val blk = actor as Block
@@ -170,9 +173,27 @@ class Piece : WidgetGroup() {
             maxXblk = blk
             blk.bx
         } else maxx
-        setBounds(minXblk.x, minYblk.y,
-                maxXblk.x-minXblk.x + maxXblk.width,
-                maxYblk.y-minYblk.y + maxYblk.height)
+    }
+
+    fun komponovka() {
+        val vPos = Vector2(minXblk.x, maxYblk.y)
+        for (j in 0 until this.children.size) {
+            val blk = this.children[j] as Block
+            blk.znaiSoseda()
+            blk.bx
+            blk.by
+            blk.x
+            blk.y
+            blk.moveBy(-vPos.x, -vPos.y)
+        }
+        val otstup = board.otstup
+        val vNewPos = Vector2(minXblk.bx * minXblk.width + otstup, (board.sizeY-1 - maxYblk.by) * maxYblk.height + otstup)
+        val newWidth = (maxXblk.bx-minXblk.bx +1 ) * maxXblk.width
+        val newHeight = (maxYblk.by-minYblk.by + 1) * maxYblk.height
+        setBounds(vNewPos.x, vNewPos.y,
+                newWidth,
+                newHeight)
+
     }
 
     val board: Board

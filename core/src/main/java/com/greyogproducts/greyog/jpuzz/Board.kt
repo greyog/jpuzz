@@ -2,6 +2,7 @@ package com.greyogproducts.greyog.jpuzz
 
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.graphics.g2d.TextureRegion
+import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.scenes.scene2d.ui.Widget
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup
 import com.greyogproducts.greyog.jpuzz.Assets.rgnPole
@@ -11,13 +12,15 @@ import com.greyogproducts.greyog.jpuzz.Assets.rgnRamka
 class Board(val sizeX: Int, val sizeY: Int, val lines: ArrayList<String>) : WidgetGroup() {
     val basicSize = 50f
     val otstup = 10f
-    lateinit var ramka: Ramka
+    private lateinit var ramka: Ramka
+    lateinit var ramkaRectangle: Rectangle
 //    val array = Array(sizeX, { arrayOfNulls<Block?>(sizeY)})
     val allBlocks = ArrayList<Block>()
 
     fun create() {
         ramka = Ramka(this)
         this.addActor(ramka)
+        ramkaRectangle = Rectangle(ramka.x+otstup, ramka.y + otstup, ramka.x + ramka.width - otstup, ramka.y + ramka.height - otstup)
 
         lines.forEachIndexed { ay, it ->
             it.forEachIndexed { ax, c ->
@@ -46,9 +49,7 @@ class Board(val sizeX: Int, val sizeY: Int, val lines: ArrayList<String>) : Widg
         for (i in 0 until children.size) {
             val piece =  (children[i] as? Piece)
             if (piece != null)
-                for (j in 0 until piece.children.size) {
-                    (piece.children[j] as Block).znaiSoseda()
-                }
+                piece.komponovka()
         }
 //        Gdx.app.log("tag", array.toString())
     }

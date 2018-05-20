@@ -22,8 +22,7 @@ class Block(posX: Int, posY: Int) : Widget(){
         super.setParent(parent)
         width = board.basicSize
         height = board.basicSize
-        val otstup = board.otstup
-        setPosition(bx*width+otstup, (board.sizeY - by-1)*height+otstup)
+        setPosition(bx*width, (board.sizeY-1 - by)*height)
         rgn = if (isBorder) Assets.rgnRamka else Assets.rgnTile
     }
 

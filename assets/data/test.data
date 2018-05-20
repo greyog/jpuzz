@@ -5,9 +5,9 @@ step 10
 initial
 ....
 .aa.
-.aa.
-....
-.jj.
+.aaa
+..a.
+.b..
 ;
 target
 .aa.
