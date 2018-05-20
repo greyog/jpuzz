@@ -5,10 +5,12 @@ import com.badlogic.gdx.Screen
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.EventListener
+import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.badlogic.gdx.scenes.scene2d.ui.*
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.viewport.FitViewport
 import com.greyogproducts.greyog.jpuzz.Assets.skin
 
@@ -24,7 +26,7 @@ class MainScreen(private var boardsMap: MutableMap<String, Board>) : Screen {
 
     override fun show() {
         stage = Stage(FitViewport(640f, 480f))
-//        stage.setDebugAll(true)
+        stage.setDebugAll(true)
         val w = Gdx.graphics.width.toFloat()
         val h = Gdx.graphics.height.toFloat()
         val ppcX = Gdx.graphics.ppcX
@@ -47,6 +49,16 @@ class MainScreen(private var boardsMap: MutableMap<String, Board>) : Screen {
         window.setPosition(stage.getWidth() / 2f - window.width / 2f,
                 stage.getHeight() / 2f - window.height / 2f)
         window.addAction(Actions.sequence(Actions.alpha(0f), Actions.fadeIn(1f)))
+
+        val label = Label("", skin)
+        stage.addActor(label)
+        stage.addListener(object : ClickListener() {
+            override fun touchDown(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int): Boolean {
+                label.setText("x = $x , y = $y")
+                label.setPosition(stage.width - label.prefWidth - 10, stage.height - label.height - 10)
+                return super.touchDown(event, x, y, pointer, button)
+            }
+        })
 
         val boardTable = Table(skin)
         val initialBoard = this.boardsMap["initial"]
