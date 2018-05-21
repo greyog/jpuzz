@@ -13,7 +13,9 @@ class MainClass : Game() {
     var boardMap : MutableMap<String, Board> = HashMap()
 
     override fun create() {
-        data = Gdx.files.internal("data/fuji01.data")
+//        data = Gdx.files.internal("data/escape.dat")
+//        data = Gdx.files.internal("data/fuji01.data")
+        data = Gdx.files.internal("data/4x6-fj-1.data")
         readBoardFile(data!!)
         setScreen(MainScreen(boardMap))
     }
@@ -71,6 +73,16 @@ class MainClass : Game() {
                     }
                     val brd = boardMap["initial"]
                     brd?.setTarget(target)
+                }
+                if (lineItems[0] == "hint") {
+                    val hint = ArrayList<String>()
+                    for (i in 0 until sizeY) {
+                        index += 1
+                        val line = lines[index]
+                        hint.add(line)
+                    }
+                    val brd = boardMap["initial"]
+                    brd?.setHint(hint)
                 }
             }
             index += 1

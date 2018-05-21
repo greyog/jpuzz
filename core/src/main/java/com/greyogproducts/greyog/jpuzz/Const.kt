@@ -1,19 +1,26 @@
 package com.greyogproducts.greyog.jpuzz
 
 import com.badlogic.gdx.scenes.scene2d.Actor
+import kotlin.math.truncate
 
-internal class Const(private val mSizeX: Int, private val mSizeY: Int, private val mWidth: Float, private val mHeight: Float, private val mPpcX: Float, private val mPpcY: Float) {
+class Const(private val mSizeX: Int, private val mSizeY: Int, private val mWidth: Float, private val mHeight: Float, private val mPpcX: Float, private val mPpcY: Float) {
     val SHAKE_TIME: Long = 10000
     val SHAKE_CHANCE = 0.001f
     val SHAKE_DURATION = 0.5f
     val SWAP_TIME_SHUFFLE = 0.1f
     val SWAP_TIME = 0.3f
     var ITEM_DIM_X: Float = 0.toFloat()
+        get() = truncate(field)
     var ITEM_PAD_X: Float = 0.toFloat()
+        get() = truncate(field)
     var ITEM_DIM_Y: Float = 0.toFloat()
+        get() = truncate(field)
     var ITEM_PAD_Y: Float = 0.toFloat()
+        get() = truncate(field)
     var BT_DIM_X: Float = 0.toFloat()
+        get() = truncate(field)
     var BT_DIM_Y: Float = 0.toFloat()
+        get() = truncate(field)
 
     init {
         recalc(mSizeX, mSizeY, mWidth, mHeight, mPpcX, mPpcY)

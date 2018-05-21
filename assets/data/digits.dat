@@ -1,0 +1,62 @@
+; Sliding Digits Puzzle by Serhiy Grabarchuk
+;
+size  18  18
+step 27
+;
+initial
+1111..222222333333
+1111..222222333333
+..11..222222..3333
+..11..222222..3333
+111111222222333333
+111111222222333333
+44..44555555666666
+44..44555555666666
+444444555555666666
+444444555555666666
+....44555555666666
+....44555555666666
+888888777777......
+888888777777......
+888888...77.......
+888888...77.......
+888888...77.......
+888888...77.......
+;
+target
+1111..222222333333
+1111..222222333333
+..11..222222..3333
+..11..222222..3333
+111111222222333333
+111111222222333333
+44..44555555666666
+44..44555555666666
+444444555555666666
+444444555555666666
+....44555555666666
+....44555555666666
+777777888888......
+777777888888......
+...77.888888......
+...77.888888......
+...77.888888......
+...77.888888......
+;
+image 0 0 images/digits/b11.jpg 2 4
+image 2 2 images/digits/b12.jpg 2 2
+image 4 0 images/digits/b13.jpg 2 6
+image 0 6 images/digits/b2.jpg 6 6
+image 0 12 images/digits/b31.jpg 2 6
+image 2 14 images/digits/b32.jpg 2 4
+image 4 12 images/digits/b33.jpg 2 6
+image 6 0 images/digits/b41.jpg 4 2
+image 8 2 images/digits/b42.jpg 2 2
+image 6 4 images/digits/b43.jpg 6 2
+image 6 6 images/digits/b5.jpg 6 6
+image 6 12 images/digits/b6.jpg 6 6
+image 12 0 images/digits/b8.jpg 6 6
+image 12 6 images/digits/b721.jpg 2 6
+image 14 9 images/digits/b722.jpg 4 2
+;
+end

@@ -1,9 +1,9 @@
-apply plugin: 'android'
+apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
 android {
   buildToolsVersion '26.0.2'
-  compileSdkVersion 23
+  compileSdkVersion 26
   sourceSets {
     main {
       manifest.srcFile 'AndroidManifest.xml'
@@ -34,8 +34,8 @@ android {
   }
   defaultConfig {
     applicationId 'com.greyogproducts.greyog.jpuzz'
-    minSdkVersion 8
-    targetSdkVersion 23
+    minSdkVersion 14
+    targetSdkVersion 26
   }
 }
 

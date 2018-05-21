@@ -20,8 +20,8 @@ class Block(posX: Int, posY: Int) : Widget(){
 
     override fun setParent(parent: Group?) {
         super.setParent(parent)
-        width = board.basicSize
-        height = board.basicSize
+        width = board.basicSizeX
+        height = board.basicSizeY
         setPosition(bx*width, (board.sizeY-1 - by)*height)
         rgn = if (isBorder) Assets.rgnRamka else Assets.rgnTile
     }
@@ -47,10 +47,10 @@ class Block(posX: Int, posY: Int) : Widget(){
         parent.children.forEach {
             val blk = it as Block
             if (blk != this) {
-                if (blk.by == by - 1) hasUp = true
-                if (blk.by == by + 1) hasDown = true
-                if (blk.bx == bx + 1) hasRight = true
-                if (blk.bx == bx - 1) hasLeft = true
+                if (blk.by == by - 1 && blk.bx == bx) hasUp = true
+                if (blk.by == by + 1 && blk.bx == bx ) hasDown = true
+                if (blk.bx == bx + 1 && blk.by == by) hasRight = true
+                if (blk.bx == bx - 1 && blk.by == by) hasLeft = true
             }
         }
     }

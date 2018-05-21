@@ -1,0 +1,32 @@
+; Block 10 by Hirofumi Fujiwara
+;	Original : Minoru Abe of Japan
+;
+; (1)
+size  4  6
+step 25
+;
+initial
+#..#
+d..b
+aacb
+aeef
+geeh
+gihh
+;
+target
+#ee#
+.ee.
+....
+....
+....
+....
+;
+hint
+#ee#
+.ee.
+....
+....
+....
+....
+;
+end

@@ -1,6 +1,5 @@
 package com.greyogproducts.greyog.jpuzz
 
-import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Actor
@@ -22,14 +21,22 @@ class Piece : WidgetGroup() {
     private lateinit var minYblk : Block
     private lateinit var maxXblk : Block
     private lateinit var maxYblk : Block
+    private var isActing = false
 
     init {
         addListener(object : ActorGestureListener() {
             var isMovingHor = false
             var isMovingVer = false
+            val setMoving = Actions.run {
+                isActing = true
+            }
+            val setStop = Actions.run {
+                isActing = false
+            }
+
 
             override fun touchDown(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int) {
-                if (this@Piece.hasActions()) return
+                if (this@Piece.isActing) return
                 if ((this@Piece.children.first() as Block).isBorder) return
                 x0 = this@Piece.x
                 y0 = this@Piece.y
@@ -52,28 +59,32 @@ class Piece : WidgetGroup() {
             }
 
             override fun touchUp(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int) {
+//                if (isActing) return
                 if (isMovingVer) {
+                    if (y0 == null) y0 = this@Piece.y
                     val sdvig = this@Piece.y - y0!!
-                    val bSdvig = (sdvig/board.basicSize).roundToInt()
+                    val bSdvig = (sdvig/board.basicSizeY).roundToInt()
                     children.forEach { val blk = it as Block
                         blk.by -= bSdvig
                     }
-                    val celSdvig = bSdvig * board.basicSize
+                    val celSdvig = bSdvig * board.basicSizeY
                     val ostatok = celSdvig - sdvig
                     val newPos = calcPos()
-                    this@Piece.addAction(Actions.moveTo(newPos.x, newPos.y, 0.4f))
+                    this@Piece.addAction(Actions.moveTo(newPos.x, newPos.y, 0.3f))
+//                    Gdx.app.log("UP", "sdvig=$sdvig , ostatok = $ostatok")
 //                    Gdx.app.log("UP", "sdvig=$sdvig , ostatok = $ostatok")
                 }
                 if (isMovingHor) {
+                    if (x0 == null) x0 = this@Piece.x
                     val sdvig = this@Piece.x - x0!!
-                    val bSdvig = (sdvig/board.basicSize).roundToInt()
+                    val bSdvig = (sdvig/board.basicSizeX).roundToInt()
                     children.forEach { val blk = it as Block
                         blk.bx += bSdvig
                     }
-                    val celSdvig = bSdvig * board.basicSize
+                    val celSdvig = bSdvig * board.basicSizeX
                     val ostatok = celSdvig - sdvig
                     val newPos = calcPos()
-                    this@Piece.addAction(Actions.moveTo(newPos.x, newPos.y, 0.4f))
+                    this@Piece.addAction(Actions.moveTo(newPos.x, newPos.y, 0.3f))
 //                    Gdx.app.log("UP", "sdvig=$sdvig , ostatok = $ostatok")
                 }
                 isMovingHor = false
@@ -95,18 +106,24 @@ class Piece : WidgetGroup() {
         var found = false
         children.forEach {
             val blk = it as Block
-            val v1l = this.localToStageCoordinates(Vector2(blk.x, blk.y + dy))
-            val v1r = this.localToStageCoordinates(Vector2(blk.x + blk.width, blk.y + dy + blk.height))
+            val v1l = this.localToStageCoordinates(Vector2(blk.x, blk.y))
+            v1l.y += dy
+            val v1r = this.localToStageCoordinates(Vector2(blk.x + blk.width, blk.y + blk.height))
+            v1r.y += dy
             val r1 = Rectangle(v1l.x, v1l.y, v1r.x, v1r.y)
             if (v1l.y <= board.ramkaRectangle.y || v1r.y >= board.ramkaRectangle.height) found = true
             board.allBlocks.forEach {
-                if (it.piece != blk.piece) {
+                if (!found && it.piece != blk.piece && it.bx == blk.bx) {
                     val v2l = it.piece.localToStageCoordinates(Vector2(it.x, it.y))
                     val v2r = it.piece.localToStageCoordinates(Vector2(it.x + it.width, it.y + it.height))
                     val r2 = Rectangle(v2l.x, v2l.y, v2r.x, v2r.y)
-                    if (!(v1r.y <= v2l.y || v1l.y >= v2r.y || v1r.x <= v2l.x || v1l.x >= v2r.x)) found = true
+                    var foundX = false
+                    var foundY = false
+                    if (!(v1r.y <= v2l.y || v1l.y >= v2r.y)) foundY = true
+                    if (!(v1r.x <= v2l.x || v1l.x >= v2r.x)) foundX = true
+                    found = found || (foundX && foundY)
                     if (found) {
-                        Gdx.app.log("check", "r1=$r1 , r2 = $r2")
+//                        Gdx.app.log("check", "r1=$r1 , r2 = $r2")
                         return@forEach
                     }
                 }
@@ -129,16 +146,29 @@ class Piece : WidgetGroup() {
         var found = false
         children.forEach {
             val blk = it as Block
-            val v1l = this.localToStageCoordinates(Vector2(blk.x + dx, blk.y))
-            val v1r = this.localToStageCoordinates(Vector2(blk.x + dx + blk.width, blk.y + blk.height))
-            if (v1l.x <= board.ramkaRectangle.x || v1r.x >= board.ramkaRectangle.width) found = true
-            board.allBlocks.forEach {
-                if (it.piece != blk.piece) {
-                    val v2l = it.piece.localToStageCoordinates(Vector2(it.x, it.y))
-                    val v2r = it.piece.localToStageCoordinates(Vector2(it.x + it.width, it.y + it.height))
-                    if (!(v1r.y <= v2l.y || v1l.y >= v2r.y || v1r.x <= v2l.x || v1l.x >= v2r.x)) found = true
-                    if (found) {
-                        return@forEach
+            val v1l = this.localToStageCoordinates(Vector2(blk.x, blk.y))
+            v1l.x += dx
+            val v1r = this.localToStageCoordinates(Vector2(blk.x + blk.width, blk.y + blk.height))
+            v1r.x += dx
+            var foundR = false
+            if (v1l.x <= board.ramkaRectangle.x || v1r.x >= board.ramkaRectangle.width) foundR = true
+            found = found || foundR
+            if (!found) {
+                board.allBlocks.forEach {
+                    if (it.piece != blk.piece
+                            && !found
+                        && it.by == blk.by
+                    ) {
+                        val v2l = it.piece.localToStageCoordinates(Vector2(it.x, it.y))
+                        val v2r = it.piece.localToStageCoordinates(Vector2(it.x + it.width, it.y + it.height))
+                        var foundX = false
+                        var foundY = false
+                        if (!(v1r.y <= v2l.y || v1l.y >= v2r.y)) foundY = true
+                        if (!(v1r.x <= v2l.x || v1l.x >= v2r.x)) foundX = true
+                        found = found || (foundX && foundY)
+                        if (found) {
+                            return@forEach
+                        }
                     }
                 }
             }
@@ -202,8 +232,9 @@ class Piece : WidgetGroup() {
     }
 
     private fun calcPos(): Vector2 {
-        val otstup = board.otstup
-        val res = Vector2(minXblk.bx * minXblk.width + otstup, (board.sizeY - 1 - maxYblk.by) * maxYblk.height + otstup)
+        val otstupX = board.otstupX
+        val otstupY = board.otstupY
+        val res = Vector2(minXblk.bx * minXblk.width + otstupX, (board.sizeY - 1 - maxYblk.by) * maxYblk.height + otstupY)
 //        Gdx.app.log("calcPos", "$res")
         return  res
     }

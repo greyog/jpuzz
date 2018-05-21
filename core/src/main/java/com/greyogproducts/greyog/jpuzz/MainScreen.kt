@@ -3,8 +3,8 @@ package com.greyogproducts.greyog.jpuzz
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Screen
 import com.badlogic.gdx.graphics.GL20
+import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.scenes.scene2d.Actor
-import com.badlogic.gdx.scenes.scene2d.EventListener
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
@@ -12,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.*
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.viewport.FitViewport
+import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.greyogproducts.greyog.jpuzz.Assets.skin
 
 /**
@@ -25,7 +26,9 @@ class MainScreen(private var boardsMap: MutableMap<String, Board>) : Screen {
     private lateinit var aConst: Const
 
     override fun show() {
-        stage = Stage(FitViewport(640f, 480f))
+//        stage = Stage(FitViewport(640f, 480f))
+        val camera = OrthographicCamera()
+        stage = Stage(ScreenViewport(camera))
 //        stage.setDebugAll(true)
         val w = Gdx.graphics.width.toFloat()
         val h = Gdx.graphics.height.toFloat()
@@ -67,7 +70,7 @@ class MainScreen(private var boardsMap: MutableMap<String, Board>) : Screen {
 //        boardTable.setFillParent(true)
         initialBoard?.setFillParent(true)
         aConst = Const(initialBoard!!.sizeX, initialBoard.sizeY, w, h, ppcX, ppcY)
-        initialBoard.create()
+        initialBoard.create(aConst)
 //        boardTable.add(initialBoard)
 //        initialBoard.children?.forEach {
 //            boardTable.row()

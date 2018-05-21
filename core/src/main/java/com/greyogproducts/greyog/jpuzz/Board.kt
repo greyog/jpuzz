@@ -11,18 +11,21 @@ import com.greyogproducts.greyog.jpuzz.Assets.rgnPole
 
 
 class Board(val sizeX: Int, val sizeY: Int, val lines: ArrayList<String>) : WidgetGroup() {
-    val basicSize = 50f
-    val otstup = 10f
+    var basicSizeX = 50f
+    var otstupX = 10f
+    var basicSizeY = 50f
+    var otstupY = 10f
     private lateinit var ramka: Ramka
     lateinit var ramkaRectangle: Rectangle
 //    val array = Array(sizeX, { arrayOfNulls<Block?>(sizeY)})
     val allBlocks = ArrayList<Block>()
-    internal val targetBlocks = ArrayList<Block>()
+    val targetBlocks = ArrayList<Block>()
+    val hintBlocks = ArrayList<Block>()
 
     fun setTarget(target: ArrayList<String>) {
         target.forEachIndexed { ay, it ->
             it.forEachIndexed { ax, c ->
-                if (c != '.') {
+                if (c != '.' && c!= '#') {
                     val block = Block(ax, ay)
                     targetBlocks.add(block)
                     block.isTarget = true
@@ -32,12 +35,18 @@ class Board(val sizeX: Int, val sizeY: Int, val lines: ArrayList<String>) : Widg
         }
     }
 
-    fun create() {
-        ramka = Ramka(false)
+    fun create(aConst: Const) {
+        basicSizeX = aConst.ITEM_DIM_X
+        basicSizeY = aConst.ITEM_DIM_Y
+        otstupX = aConst.ITEM_PAD_X
+        otstupY = aConst.ITEM_PAD_Y
+        ramka = Ramka()
         this.addActor(ramka)
-        ramkaRectangle = Rectangle(ramka.x+otstup, ramka.y + otstup, ramka.x + ramka.width - otstup, ramka.y + ramka.height - otstup)
-        val dyrka = Ramka(true)
-        this.addActor(dyrka)
+        ramkaRectangle = Rectangle(ramka.x+otstupX, ramka.y + otstupY, ramka.x + ramka.width - otstupX, ramka.y + ramka.height - otstupY)
+        if (hintBlocks.size > 0) {
+            val dyrka = Ramka(true)
+            this.addActor(dyrka)
+        }
 
         lines.forEachIndexed { ay, it ->
             it.forEachIndexed { ax, c ->
@@ -67,12 +76,28 @@ class Board(val sizeX: Int, val sizeY: Int, val lines: ArrayList<String>) : Widg
             (children[i] as? Piece)?.komponovka()
         }
         Gdx.app.log("target", targetBlocks.toString())
+        Gdx.app.log("hint", hintBlocks.toString())
+    }
+
+    fun setHint(hint: ArrayList<String>) {
+        hint.forEachIndexed { ay, it ->
+            it.forEachIndexed { ax, c ->
+                if (c != '.' && c!= '#') {
+                    val block = Block(ax, ay)
+                    hintBlocks.add(block)
+                    block.isTarget = true
+                    block.name = c.toString()
+                }
+            }
+        }
     }
 }
 
-class Ramka(private val isDyrka: Boolean) : Widget() {
-    private val tolshina: Float
-        get() = board.otstup
+class Ramka(private val isDyrka: Boolean = false) : Widget() {
+    private val tolshinaX: Float
+        get() = board.otstupX
+    private val tolshinaY: Float
+        get() = board.otstupY
     private lateinit var board: Board
     private var rgn: TextureRegion = Assets.rgnRamka
     private var dyrkaHor: Rectangle? = null
@@ -81,17 +106,17 @@ class Ramka(private val isDyrka: Boolean) : Widget() {
     override fun setParent(parent: Group?) {
         super.setParent(parent)
         board = parent as Board
-        width = board.sizeX * board.basicSize + 2*tolshina
-        height = board.sizeY * board.basicSize + 2*tolshina
+        width = board.sizeX * board.basicSizeX + 2*tolshinaX
+        height = board.sizeY * board.basicSizeY + 2*tolshinaY
         setPosition(0f,0f)
         if (isDyrka) {
             rgn = Assets.rgnPole
-            board.targetBlocks.forEach {
-                it.width = board.basicSize
-                it.height = board.basicSize
-                it.setPosition(it.bx * it.width + tolshina, (board.sizeY - 1 - it.by) * it.height + tolshina)
-                val horRect = Rectangle(it.x - tolshina, it.y, it.width + 2 * tolshina, it.height)
-                val vertRect = Rectangle(it.x, it.y - tolshina, it.width, it.height + 2 * tolshina)
+            board.hintBlocks.forEach {
+                it.width = board.basicSizeX
+                it.height = board.basicSizeY
+                it.setPosition(it.bx * it.width + tolshinaX, (board.sizeY - 1 - it.by) * it.height + tolshinaY)
+                val horRect = Rectangle(it.x - tolshinaX, it.y, it.width + 2 * tolshinaX, it.height)
+                val vertRect = Rectangle(it.x, it.y - tolshinaX, it.width, it.height + 2 * tolshinaY)
                 if (dyrkaHor == null) dyrkaHor = horRect else dyrkaHor?.merge(horRect)
                 if (dyrkaVer == null) dyrkaVer = vertRect else dyrkaVer?.merge(vertRect)
             }
@@ -104,16 +129,16 @@ class Ramka(private val isDyrka: Boolean) : Widget() {
             batch?.draw(rgnPole, dyrkaVer!!.x, dyrkaVer!!.y, dyrkaVer!!.width, dyrkaVer!!.height)
 
         } else {
-            drawRect(batch, rgn, x, y, width, height, tolshina)
-            batch?.draw(rgnPole, x + tolshina, y + tolshina, width - 2 * tolshina, height - 2 * tolshina)
+            drawRect(batch, rgn, x, y, width, height, tolshinaX, tolshinaY)
+            batch?.draw(rgnPole, x + tolshinaX, y + tolshinaY, width - 2 * tolshinaX, height - 2 * tolshinaY)
         }
         super.draw(batch, parentAlpha)
     }
 
-    private fun drawRect(batch: Batch?, rect: TextureRegion, x: Float, y: Float, width: Float, height: Float, thickness: Float) {
-        batch?.draw(rect, x, y, width, thickness)
-        batch?.draw(rect, x, y, thickness, height)
-        batch?.draw(rect, x, y + height - thickness, width, thickness)
-        batch?.draw(rect, x + width - thickness, y, thickness, height)
+    private fun drawRect(batch: Batch?, rect: TextureRegion, x: Float, y: Float, width: Float, height: Float, thX: Float, thY: Float) {
+        batch?.draw(rect, x, y, width, thY)
+        batch?.draw(rect, x, y, thX, height)
+        batch?.draw(rect, x, y + height - thY, width, thY)
+        batch?.draw(rect, x + width - thX, y, thX, height)
     }
 }
