@@ -14,8 +14,9 @@ class MainClass : Game() {
 
     override fun create() {
 //        data = Gdx.files.internal("data/escape.dat")
+        data = Gdx.files.internal("data/test.data")
 //        data = Gdx.files.internal("data/fuji01.data")
-        data = Gdx.files.internal("data/4x6-fj-1.data")
+//        data = Gdx.files.internal("data/4x6-fj-1.data")
         readBoardFile(data!!)
         setScreen(MainScreen(boardMap))
     }

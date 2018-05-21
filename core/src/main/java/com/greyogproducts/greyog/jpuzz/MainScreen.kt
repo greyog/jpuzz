@@ -4,14 +4,11 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Screen
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.OrthographicCamera
-import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.Stage
-import com.badlogic.gdx.scenes.scene2d.actions.Actions
-import com.badlogic.gdx.scenes.scene2d.ui.*
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
+import com.badlogic.gdx.scenes.scene2d.ui.Label
+import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
-import com.badlogic.gdx.utils.viewport.FitViewport
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.greyogproducts.greyog.jpuzz.Assets.skin
 
@@ -37,21 +34,6 @@ class MainScreen(private var boardsMap: MutableMap<String, Board>) : Screen {
 //        Gdx.app.log("Tag", "screen: $w / $h")
 //        Gdx.app.log("Tag", "ppc x/y: $ppcX / $ppcY")
         Assets.create()
-        val window = Window("Example screen", skin, "border")
-        window.defaults().pad(4f)
-        window.add("This is a simple Scene2D view.").row()
-        val button = TextButton("Click me!", skin)
-        button.pad(8f)
-        button.addListener(object : ChangeListener() {
-            override fun changed(event: ChangeListener.ChangeEvent, actor: Actor) {
-                button.setText("Clicked.")
-            }
-        })
-        window.add<TextButton>(button)
-        window.pack()
-        window.setPosition(stage.getWidth() / 2f - window.width / 2f,
-                stage.getHeight() / 2f - window.height / 2f)
-        window.addAction(Actions.sequence(Actions.alpha(0f), Actions.fadeIn(1f)))
 
         val label = Label("", skin)
         stage.addActor(label)

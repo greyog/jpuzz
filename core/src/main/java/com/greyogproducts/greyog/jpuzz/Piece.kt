@@ -91,6 +91,7 @@ class Piece : WidgetGroup() {
                 isMovingVer = false
                 x0 = null
                 y0 = null
+                board.isPobeda()
                 super.touchUp(event, x, y, pointer, button)
             }
         })

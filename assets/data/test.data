@@ -3,9 +3,9 @@ size 4 5
 next fuji02.data
 step 10
 initial
-....
-.a..
-....
+..c.
+.aa.
+.aa.
 ....
 .b..
 ;

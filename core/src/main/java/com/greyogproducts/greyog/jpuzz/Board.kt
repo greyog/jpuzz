@@ -3,10 +3,15 @@ package com.greyogproducts.greyog.jpuzz
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.graphics.g2d.TextureRegion
+import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.scenes.scene2d.Group
+import com.badlogic.gdx.scenes.scene2d.InputEvent
+import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.badlogic.gdx.scenes.scene2d.ui.Widget
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup
+import com.badlogic.gdx.scenes.scene2d.ui.Window
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.greyogproducts.greyog.jpuzz.Assets.rgnPole
 
 
@@ -21,6 +26,14 @@ class Board(val sizeX: Int, val sizeY: Int, val lines: ArrayList<String>) : Widg
     val allBlocks = ArrayList<Block>()
     val targetBlocks = ArrayList<Block>()
     val hintBlocks = ArrayList<Block>()
+
+    fun naidiBlock(bx: Int, by: Int): Block? {
+        allBlocks.forEach {
+            if (it.by == by && it.bx == bx)
+                return it
+        }
+        return null
+    }
 
     fun setTarget(target: ArrayList<String>) {
         target.forEachIndexed { ay, it ->
@@ -89,6 +102,42 @@ class Board(val sizeX: Int, val sizeY: Int, val lines: ArrayList<String>) : Widg
                     block.name = c.toString()
                 }
             }
+        }
+    }
+
+    fun isPobeda() {
+        var rez = true
+        targetBlocks.forEach {
+            val cBlk = naidiBlock(it.bx, it.by)
+            if (cBlk == null) rez = false
+            if (it.name != cBlk?.name) rez = false
+        }
+        if (rez) {
+            val window = Window("Congratulations!", Assets.skin, "default")
+            window.defaults().pad(4f)
+            window.add("You solved this puzzle!").row()
+//            val button = TextButton("Click me!", Assets.skin)
+//            button.pad(8f)
+//            button.addListener(object : ChangeListener() {
+//                override fun changed(event: ChangeListener.ChangeEvent, actor: Actor) {
+//                    button.setText("Clicked.")
+//                }
+//            })
+//            window.add<TextButton>(button)
+            window.pack()
+            window.setScale(2f)
+            window.setPosition(stage.width / 2f - window.width / 2f,
+                    stage.height / 2f - window.height / 2f)
+            window.addAction(Actions.sequence(Actions.scaleTo(10f, 10f),
+                    Actions.scaleTo(2f, 2f, 0.5f)))
+            addListener(object : ClickListener() {
+                override fun touchDown(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int): Boolean {
+                    window.addAction(Actions.moveTo(stage.width / 2 - window.width / 2, -stage.height,
+                            0.5f, Interpolation.swingIn))
+                    return super.touchDown(event, x, y, pointer, button)
+                }
+            })
+            addActor(window)
         }
     }
 }
