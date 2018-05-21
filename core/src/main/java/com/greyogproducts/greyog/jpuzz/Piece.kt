@@ -204,7 +204,7 @@ class Piece : WidgetGroup() {
     private fun calcPos(): Vector2 {
         val otstup = board.otstup
         val res = Vector2(minXblk.bx * minXblk.width + otstup, (board.sizeY - 1 - maxYblk.by) * maxYblk.height + otstup)
-        Gdx.app.log("calcPos", "$res")
+//        Gdx.app.log("calcPos", "$res")
         return  res
     }
 

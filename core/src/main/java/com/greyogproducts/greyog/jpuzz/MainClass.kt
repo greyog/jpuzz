@@ -62,6 +62,16 @@ class MainClass : Game() {
                     boardMap[board.name]= board
                     myLog(initial.toString())
                 }
+                if (lineItems[0] == "target") {
+                    val target = ArrayList<String>()
+                    for (i in 0 until sizeY) {
+                        index += 1
+                        val line = lines[index]
+                        target.add(line)
+                    }
+                    val brd = boardMap["initial"]
+                    brd?.setTarget(target)
+                }
             }
             index += 1
         }

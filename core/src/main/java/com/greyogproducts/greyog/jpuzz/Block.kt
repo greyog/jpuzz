@@ -30,6 +30,7 @@ class Block(posX: Int, posY: Int) : Widget(){
         get() {
             return (piece).board
         }
+    var isTarget: Boolean = false
 
     override fun draw(batch: Batch?, parentAlpha: Float) {
         batch?.draw(rgn, x, y, width, height)
