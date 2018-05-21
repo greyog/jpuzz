@@ -8,6 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup
 import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener
+import kotlin.math.roundToInt
 
 class Piece : WidgetGroup() {
     private var x0 : Float? = null
@@ -28,7 +29,8 @@ class Piece : WidgetGroup() {
             var isMovingVer = false
 
             override fun touchDown(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int) {
-                if (hasActions()) return
+                if (this@Piece.hasActions()) return
+                if ((this@Piece.children.first() as Block).isBorder) return
                 x0 = this@Piece.x
                 y0 = this@Piece.y
                 super.touchDown(event, x, y, pointer, button)
@@ -38,22 +40,42 @@ class Piece : WidgetGroup() {
                 if (Math.abs(deltaX) > Math.abs(deltaY)) {
                     if (!isMovingVer) {
                         isMovingHor = true
-//                        if (deltaX > 0)
-                            swipeOnRight(deltaX)
-//                        else swipeOnLeft(deltaX)
+                        swipeHor(deltaX)
                     }
                 } else {
                     if (!isMovingHor) {
                         isMovingVer = true
-//                        if (deltaY > 0)
-                            swipeOnUp(deltaY)
-//                        else swipeOnDown(deltaY, x, y)
+                        swipeVer(deltaY)
                     }
                 }
                 super.pan(event, x, y, deltaX, deltaY)
             }
 
             override fun touchUp(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int) {
+                if (isMovingVer) {
+                    val sdvig = this@Piece.y - y0!!
+                    val bSdvig = (sdvig/board.basicSize).roundToInt()
+                    children.forEach { val blk = it as Block
+                        blk.by -= bSdvig
+                    }
+                    val celSdvig = bSdvig * board.basicSize
+                    val ostatok = celSdvig - sdvig
+                    val newPos = calcPos()
+                    this@Piece.addAction(Actions.moveTo(newPos.x, newPos.y, 0.4f))
+//                    Gdx.app.log("UP", "sdvig=$sdvig , ostatok = $ostatok")
+                }
+                if (isMovingHor) {
+                    val sdvig = this@Piece.x - x0!!
+                    val bSdvig = (sdvig/board.basicSize).roundToInt()
+                    children.forEach { val blk = it as Block
+                        blk.bx += bSdvig
+                    }
+                    val celSdvig = bSdvig * board.basicSize
+                    val ostatok = celSdvig - sdvig
+                    val newPos = calcPos()
+                    this@Piece.addAction(Actions.moveTo(newPos.x, newPos.y, 0.4f))
+//                    Gdx.app.log("UP", "sdvig=$sdvig , ostatok = $ostatok")
+                }
                 isMovingHor = false
                 isMovingVer = false
                 x0 = null
@@ -63,28 +85,13 @@ class Piece : WidgetGroup() {
         })
     }
 
-    private fun swipeOnUp(dy: Float) {
+    private fun swipeVer(dy: Float) {
         if (canMoveUp(dy)) {
             moveBy(0f, dy)
-            val sdvig = y - y0!!
-            Gdx.app.log("UP", "sdvig=$sdvig")
-//            if (sdvig > 0) {
-//                children.forEach {
-//                    (it as Block).by -=1
-//                }
-//                y0 = touchY
-//                Gdx.app.log("tag", "sdvig UP")
-//            }
-        }
+       }
     }
 
     private fun canMoveUp(dy: Float): Boolean {
-//        val v1 = Vector2(minYblk.x, minYblk.y)
-//        val v2 = minYblk.localToStageCoordinates(v1)
-//        val vRamkaMin = board.ramka.localToStageCoordinates(
-//                Vector2(board.ramka.x, board.ramka.y))
-//        val vRamkaMax = board.ramka.localToStageCoordinates(
-//                Vector2(board.ramka.width, board.ramka.height))
         var found = false
         children.forEach {
             val blk = it as Block
@@ -110,61 +117,64 @@ class Piece : WidgetGroup() {
             }
         }
         return !found
-//        Gdx.app.log("move check", "minYblk.y = $v2, vRamkaMin = $vRamkaMin, vRamkaMax = $vRamkaMax")
-//        if (v2.y + minYblk.height >= vRamka.y + getBoard().ramka.height) return false
-//        getBoard().allBlocks.forEach {
-//            if (it.by == minYblk.by - 1) return false
-//        }
-
     }
 
-    private fun swipeOnDown(dy: Float, touchX: Float, touchY: Float) {
-        if (canMoveDown()) {
-            moveBy(0f, dy)
-//            val sdvig = touchY - y0!! + getBoard().basicSize/2
-//            if (sdvig < 0) {
-//                children.forEach {
-//                    (it as Block).by +=1
-//                }
-//                y0 = touchY
-//                Gdx.app.log("tag", "sdvig DOWN")
-//            }
+    private fun swipeHor(dx: Float) {
+        if (canMoveHor(dx)) {
+            moveBy(dx, 0f)
         }
     }
 
-    private fun canMoveDown(): Boolean {
-//        if (maxYblk.by == getBoard().sizeY) return false
-//        getBoard().allBlocks.forEach {
-//            if (it.by == minYblk.by + 1) return false
-//        }
-        return true
-    }
-
-    private fun swipeOnLeft(dx: Float) {
-        addAction(Actions.moveBy(-1f, 0f))
-    }
-
-    private fun swipeOnRight(dx: Float) {
-        addAction(Actions.moveBy(dx, 0f))
+    private fun canMoveHor(dx: Float): Boolean {
+        var found = false
+        children.forEach {
+            val blk = it as Block
+            val v1l = this.localToStageCoordinates(Vector2(blk.x + dx, blk.y))
+            val v1r = this.localToStageCoordinates(Vector2(blk.x + dx + blk.width, blk.y + blk.height))
+            if (v1l.x <= board.ramkaRectangle.x || v1r.x >= board.ramkaRectangle.width) found = true
+            board.allBlocks.forEach {
+                if (it.piece != blk.piece) {
+                    val v2l = it.piece.localToStageCoordinates(Vector2(it.x, it.y))
+                    val v2r = it.piece.localToStageCoordinates(Vector2(it.x + it.width, it.y + it.height))
+                    if (!(v1r.y <= v2l.y || v1l.y >= v2r.y || v1r.x <= v2l.x || v1l.x >= v2r.x)) found = true
+                    if (found) {
+                        return@forEach
+                    }
+                }
+            }
+            if (found) {
+//                Gdx.app.log("check", "ramka!")
+                return@forEach
+            }
+        }
+        return !found
     }
 
     override fun addActor(actor: Actor?) {
         super.addActor(actor)
         val blk = actor as Block
-        minx = if (minx == null) {
-            minXblk = blk
-            blk.bx
-        } else if (blk.bx < minx!!) {
-            minXblk = blk
-            blk.bx
-        } else minx
-        miny = if (miny == null) {
-            minYblk = blk
-            blk.by
-        } else if (blk.by < miny!!) {
-            minYblk = blk
-            blk.by
-        } else miny
+        minx = when {
+            minx == null -> {
+                minXblk = blk
+                blk.bx
+            }
+            blk.bx < minx!! -> {
+                minXblk = blk
+                blk.bx
+            }
+            else -> minx
+        }
+        miny = when {
+            miny == null -> {
+                minYblk = blk
+                blk.by
+            }
+            blk.by < miny!! -> {
+                minYblk = blk
+                blk.by
+            }
+            else -> miny
+        }
         maxy = if (blk.by >= maxy) {
             maxYblk = blk
             blk.by
@@ -180,20 +190,22 @@ class Piece : WidgetGroup() {
         for (j in 0 until this.children.size) {
             val blk = this.children[j] as Block
             blk.znaiSoseda()
-            blk.bx
-            blk.by
-            blk.x
-            blk.y
             blk.moveBy(-vPos.x, -vPos.y)
         }
-        val otstup = board.otstup
-        val vNewPos = Vector2(minXblk.bx * minXblk.width + otstup, (board.sizeY-1 - maxYblk.by) * maxYblk.height + otstup)
+        val vNewPos = calcPos()
         val newWidth = (maxXblk.bx-minXblk.bx +1 ) * maxXblk.width
         val newHeight = (maxYblk.by-minYblk.by + 1) * maxYblk.height
         setBounds(vNewPos.x, vNewPos.y,
                 newWidth,
                 newHeight)
 
+    }
+
+    private fun calcPos(): Vector2 {
+        val otstup = board.otstup
+        val res = Vector2(minXblk.bx * minXblk.width + otstup, (board.sizeY - 1 - maxYblk.by) * maxYblk.height + otstup)
+        Gdx.app.log("calcPos", "$res")
+        return  res
     }
 
     val board: Board

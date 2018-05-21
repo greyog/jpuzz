@@ -26,7 +26,7 @@ class MainScreen(private var boardsMap: MutableMap<String, Board>) : Screen {
 
     override fun show() {
         stage = Stage(FitViewport(640f, 480f))
-        stage.setDebugAll(true)
+//        stage.setDebugAll(true)
         val w = Gdx.graphics.width.toFloat()
         val h = Gdx.graphics.height.toFloat()
         val ppcX = Gdx.graphics.ppcX

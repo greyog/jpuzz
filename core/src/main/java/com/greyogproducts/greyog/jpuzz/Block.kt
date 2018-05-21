@@ -33,10 +33,12 @@ class Block(posX: Int, posY: Int) : Widget(){
 
     override fun draw(batch: Batch?, parentAlpha: Float) {
         batch?.draw(rgn, x, y, width, height)
-        if (!hasUp) batch?.draw(Assets.rgnPole,x,y+height, width, zazor)
-        if (!hasDown) batch?.draw(Assets.rgnPole,x,y, width, zazor)
-        if (!hasRight) batch?.draw(Assets.rgnPole,x+width,y, zazor, height)
-        if (!hasLeft) batch?.draw(Assets.rgnPole,x,y, zazor, height)
+        if (!isBorder) {
+            if (!hasUp) batch?.draw(Assets.rgnPole, x, y + height, width, zazor)
+            if (!hasDown) batch?.draw(Assets.rgnPole, x, y, width, zazor)
+            if (!hasRight) batch?.draw(Assets.rgnPole, x + width, y, zazor, height)
+            if (!hasLeft) batch?.draw(Assets.rgnPole, x, y, zazor, height)
+        }
         super.draw(batch, parentAlpha)
     }
 
